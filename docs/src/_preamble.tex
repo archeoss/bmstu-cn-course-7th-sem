@@ -1,0 +1,206 @@
+\documentclass[ut8x, 14pt, oneside, a4paper]{extarticle}
+
+\usepackage{extsizes} % Для добавления в параметры класса документа 14pt
+
+% Для работы с несколькими языками и шрифтом Times New Roman по-умолчанию
+\usepackage[english,russian]{babel}
+
+
+% ГОСТовские настройки для полей и абзацев
+\usepackage[left=30mm,right=10mm,top=20mm,bottom=20mm]{geometry}
+\usepackage{misccorr}
+\usepackage{indentfirst}
+\usepackage{enumitem}
+\setlength{\parindent}{1.25cm}
+\renewcommand{\baselinestretch}{1.5}
+\setlist{nolistsep} % Отсутствие отступов между элементами \enumerate и \itemize
+\renewcommand\labelitemi{--} % Замена булетов на тире
+\usepackage[
+	style=gost-numeric,
+	language=auto,
+	autolang=other,
+	sorting=none,
+]{biblatex}
+\bibliography{biblio}
+
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+% Дополнительное окружения для подписей
+\usepackage{array}
+\newenvironment{signstabular}[1][1]{
+	\renewcommand*{\arraystretch}{#1}
+	\tabular
+}{
+	\endtabular
+}
+
+\usepackage{tocloft}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}} % Точки у секций
+% \renewcommand{\cftdot}{}
+
+% Переопределение стандартных \section, \subsection, \subsubsection по ГОСТу;
+% Переопределение их отступов до и после для 1.5 интервала во всем документе
+\usepackage{titlesec}
+
+\titleformat{\section}[block]
+{\bfseries\Large\ifSPECIAL\filcenter\fi}
+  {\thesection}
+  {1em}
+  {}
+\iffalse
+\titleformat{name=\section,numberless}[block]
+  {\Large\bfseries}
+  {}
+  {0pt}
+  {}
+\fi
+\newif\ifSPECIAL
+\NewDocumentCommand{\specsection}{sO{#3}m}{
+  \SPECIALtrue
+  \IfBooleanTF{#1}{\section*}{\section*}{#3}
+    \addcontentsline{toc}{section}{#3}
+  \SPECIALfalse
+}
+
+\titleformat{\subsection}[hang]
+{\bfseries\normalsize}{\thesubsection}{1em}{}
+\titlespacing\subsection{\parindent}{\parskip}{\parskip}
+
+\titleformat{\subsubsection}[hang]
+{\bfseries\normalsize}{\thesubsubsection}{1em}{}
+\titlespacing\subsubsection{\parindent}{\parskip}{\parskip}
+
+% \newcommand{\specsection}[1]{
+%     {\centering\section*{#1}}
+%     \addcontentsline{toc}{section}{#1}
+% }
+
+% Работа с изображениями и таблицами; переопределение названий по ГОСТу
+\usepackage{caption}
+\captionsetup[figure]{name={Рисунок},labelsep=endash}
+\captionsetup[table]{singlelinecheck=false, labelsep=endash}
+\usepackage{threeparttable}
+\usepackage{graphicx}
+\usepackage{inc/slashbox} % Диагональное разделение первой ячейки в таблицах
+
+% Цвета для гиперссылок и листингов
+\usepackage{color}
+
+
+
+\usepackage{color} % Цвета для гиперссылок и листингов
+%\definecolor{comment}{rgb}{0,0.5,0}
+%\definecolor{plain}{rgb}{0.2,0.2,0.2}
+%\definecolor{string}{rgb}{0.91,0.45,0.32}
+\usepackage{xcolor}
+
+\usepackage{ulem} % Нормальное нижнее подчеркивание
+\usepackage{hhline} % Двойная горизонтальная линия в таблицах
+\usepackage[figure,table]{totalcount} % Подсчет изображений, таблиц
+\usepackage{rotating} % Поворот изображения вместе с названием
+\usepackage{lastpage} % Для подсчета числа страниц
+
+
+
+\usepackage{color}
+
+
+\usepackage{titlesec}
+\usepackage{hyperref}
+
+\titleclass{\subsubsubsection}{straight}[\subsection]
+
+\newcounter{subsubsubsection}[subsubsection]
+\renewcommand\thesubsubsubsection{\thesubsubsection.\arabic{subsubsubsection}}
+\renewcommand\theparagraph{\thesubsubsubsection.\arabic{paragraph}} % optional; useful if paragraphs are to be numbered
+
+\titleformat{\subsubsubsection}
+{\normalfont\normalsize\bfseries}{\thesubsubsubsection}{1em}{}
+\titlespacing*{\subsubsubsection}
+{14mm}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+
+\usepackage{xcolor}
+\usepackage{listings}
+
+\usepackage{xparse}
+
+
+\NewDocumentCommand{\codeword}{v}{%
+	\texttt{\textcolor{black}{#1}}%
+}
+
+\lstset{
+    language=C, % выбор языка для подсветки
+    basicstyle=\footnotesize\ttfamily,
+    %numberstyle=, % размер шрифта для номеров строк
+    stepnumber=1, % размер шага между двумя номерами строк
+    numbersep=5pt, % как далеко отстоят номера строк от подсвечиваемого кода
+    frame=single, % рисовать рамку вокруг кода
+    tabsize=2, % размер табуляции по умолчанию равен 4 пробелам
+    captionpos=t, % позиция заголовка вверху [t] или внизу [b]
+    breaklines=true,
+    breakatwhitespace=true, % переносить строки только если есть пробел
+    backgroundcolor=\color{white}
+}
+
+\captionsetup{labelsep=endash}
+\usepackage[final]{pdfpages}
+
+\usepackage{placeins}
+\usepackage{listings}
+\usepackage{longtable}
+\usepackage{tikz}
+
+
+\usepackage{pgfplots}
+\usepackage{totcount}
+\newtotcounter{citnum} %From the package documentation
+
+\makeatletter
+\renewcommand\@biblabel[1]{#1.}
+\makeatother
+
+\newcommand{\img}[3] {
+    \begin{figure}[h]
+        \center{\includegraphics[height=#1]{inc/img/#2}}
+        \caption{#3}
+        \label{img:#2}
+    \end{figure}
+}
+\newcommand{\boximg}[3] {
+    \begin{figure}[h]
+        \center{\fbox{\includegraphics[height=#1]{inc/img/#2}}}
+        \caption{#3}
+        \label{img:#2}
+    \end{figure}
+}
+
+\renewcommand{\labelenumi}{\arabic{enumi}.}
+\renewcommand{\labelenumii}{\arabic{enumi}.\arabic{enumii}}
+\renewcommand{\labelenumiii}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}}
+\renewcommand{\labelenumiv}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}.\arabic{enumiv}}
+
+\pagenumbering{gobble}
+    \normalsize
+    \pagenumbering{arabic}
+
+% Гиперссылки \toc с кликабельностью
+\usepackage{hyperref}
+
+\hypersetup{
+	linktoc=all,
+	linkcolor=black,
+	colorlinks=true,
+	urlcolor=black,
+}
+%\hypersetup{citecolor=blue}
+\hypersetup{citecolor=black}
+
+% SVG
+\usepackage[inkscapeformat=png,inkscapeversion=1]{svg}
+
+\title{Computer Networks}
+\begin{document}

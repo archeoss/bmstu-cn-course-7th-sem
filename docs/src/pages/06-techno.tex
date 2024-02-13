@@ -1,0 +1,141 @@
+\section{Технологический раздел}
+
+\subsection{Листинги кода}
+
+В листинге~\ref{lst:serv} представлена реализация запуска веб-сервера:
+
+\begin{center}
+\captionsetup{justification=raggedright,singlelinecheck=off}
+\begin{lstlisting}[label=lst:serv,caption=Запуск WEB-сервера]
+int main(int argc, char *argv[]) {
+  ...
+  /* defaults */
+  size_t nthreads = 4;
+  size_t nslots = 64;
+  char *servedir = ".";
+
+  rlim.rlim_cur = rlim.rlim_max =
+      3 + nthreads + nthreads * nslots + 5 * nthreads;
+	if (setrlimit(RLIMIT_NOFILE, &rlim) < 0) {
+    die("setrlimit:");
+  }
+  insock = sock_get_ips(srv.host, srv.port);
+  if (sock_set_nonblocking(insock)) {
+    return 1;
+  }
+  /* chroot */
+  if (chdir(servedir) < 0) {
+    die("chdir '%s':", servedir);
+  }
+  if (chroot(".") < 0) {
+    die("chroot:");
+  }
+  /* accept incoming connections */
+  server_init_thread_pool(insock, nthreads, nslots, &srv);
+
+	while (wait(&status) > 0)
+    ;
+
+  return status;
+}
+\end{lstlisting}
+\end{center}
+
+Функция обработки соединения, изображенная в листинге~\ref{lst:serv-accept}, включает в себя принятие соединения, поиск подходящего соединения для дропа, принятие заголовка, и парсинг заголовков.
+
+\begin{center}
+\captionsetup{justification=raggedright,singlelinecheck=off}
+\begin{lstlisting}[label=lst:serv-accept,caption=Функция обработки соединения]
+struct connection *connection_accept(int insock, struct connection *connection,
+                                     size_t nslots) {
+  struct connection *c = NULL;
+  size_t i;
+
+  for (i = 0; i < nslots; i++) {
+    if (connection[i].fd == 0) {
+      c = &connection[i];
+      break;
+    }
+  }
+  if (i == nslots) {
+    c = connection_get_drop_candidate(connection, nslots);
+    c->res.status = 0;
+    connection_log(c);
+    connection_reset(c);
+  }
+
+  if ((c->fd = accept(insock, (struct sockaddr *)&c->ia,
+                      &(socklen_t){sizeof(c->ia)})) < 0) {
+    if (errno != EAGAIN && errno != EWOULDBLOCK) {
+      warn("accept:");
+    }
+    return NULL;
+  }
+
+  if (sock_set_nonblocking(c->fd)) {
+    return NULL;
+  }
+  return c;
+}
+\end{lstlisting}
+\end{center}
+
+На листинге~\ref{lst:serv-drop} представлен поиск соединения для завершения, при новом соединении.
+
+
+\begin{center}
+\captionsetup{justification=raggedright,singlelinecheck=off}
+\begin{lstlisting}[label=lst:serv-drop,caption=Функция поиска соединения]
+enum status http_prepare_header_buf(const struct response *res,
+                                    struct buffer *buf) {
+  char tstmp[FIELD_MAX];
+  size_t i;
+
+  memset(buf, 0, sizeof(*buf));
+
+  if (timestamp(tstmp, sizeof(tstmp), time(NULL))) {
+    memset(buf, 0, sizeof(*buf));
+    return S_INTERNAL_SERVER_ERROR;
+  }
+  if (buffer_appendf(buf,
+                     "HTTP/1.1 %d %s\r\n"
+                     "Date: %s\r\n"
+                     "Connection: close\r\n",
+                     res->status, status_str[res->status], tstmp)) {
+    memset(buf, 0, sizeof(*buf));
+    return S_INTERNAL_SERVER_ERROR;
+  }
+  for (i = 0; i < NUM_RES_FIELDS; i++) {
+    if (res->field[i][0] != '\0' &&
+        buffer_appendf(buf, "%s: %s\r\n", res_field_str[i], res->field[i])) {
+
+      memset(buf, 0, sizeof(*buf));
+      return S_INTERNAL_SERVER_ERROR;
+    }
+  }
+
+  if (buffer_appendf(buf, "\r\n")) {
+    memset(buf, 0, sizeof(*buf));
+    return S_INTERNAL_SERVER_ERROR;
+  }
+
+  return 0;
+}
+\end{lstlisting}
+\end{center}
+
+\subsection{Демонстрация работы}
+
+Для демонстрации корректности работы прогаммы был написан простой веб-сайт, состоящий из трех файлов: index.html, styles.css, README.md. 
+На рисунке~\ref{img:work} показан веб-сайт открытый в браузере Firefox.
+
+\img{160mm}{work}{Демонстрация работы}
+
+Для демоснтрации работы сервера на больших файлах был использован образ установки ArchLinux, весящий 586 Мб и команда wget.
+
+\img{60mm}{work_big}{Демонстрация работы с большими файлами}
+
+\subsection*{Вывод}
+
+Программа была реализована на языке Си, проверка на корректость пройденна успешно.
+
