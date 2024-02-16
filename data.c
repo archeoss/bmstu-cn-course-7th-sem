@@ -124,7 +124,6 @@ enum status data_prepare_dirlisting_buf(const struct response *res,
       continue;
     }
 
-    /* entry line */
     html_escape(e[i]->d_name, esc, sizeof(esc));
     if (buffer_appendf(buf, "<br />\n\t\t<a href=\"%s%s\">%s%s</a>", esc,
                        (e[i]->d_type == DT_DIR) ? "/" : "", esc,

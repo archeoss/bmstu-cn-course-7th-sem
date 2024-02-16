@@ -198,7 +198,6 @@ enum status http_parse_header(const char *h, struct request *req) {
     return S_BAD_REQUEST;
   }
 
-  /* search for first '?' */
   for (r = p; r < q; r++) {
     if (!isprint(*r)) {
       return S_BAD_REQUEST;
@@ -208,11 +207,9 @@ enum status http_parse_header(const char *h, struct request *req) {
     }
   }
   if (r == q) {
-    /* not found */
     r = NULL;
   }
 
-  /* search for first '#' */
   for (s = p; s < q; s++) {
     if (!isprint(*s)) {
       return S_BAD_REQUEST;
@@ -222,27 +219,18 @@ enum status http_parse_header(const char *h, struct request *req) {
     }
   }
   if (s == q) {
-    /* not found */
     s = NULL;
   }
 
   if (r != NULL && s != NULL && s < r) {
-    /*
-     * '#' comes before '?' and thus the '?' is literal,
-     * because the query must come before the fragment
-     */
     r = NULL;
   }
 
-  /* write path using temporary endpointer t */
   if (r != NULL) {
-    /* resource contains a query, path ends at r */
     t = r;
   } else if (s != NULL) {
-    /* resource contains only a fragment, path ends at s */
     t = s;
   } else {
-    /* resource contains no queries, path ends at q */
     t = q;
   }
 
@@ -500,10 +488,6 @@ void http_prepare_response(const struct request *req, struct response *res,
   redirect = 0;
   memcpy(res->path, req->path, MIN(sizeof(res->path), sizeof(req->path)));
 
-  /*
-   * generate and stat internal path based on the cleaned up request
-   * path while ignoring query and fragment
-   */
   if (esnprintf(res->internal_path, sizeof(res->internal_path), "/%s",
                 res->path)) {
     s = S_REQUEST_TOO_LARGE;
@@ -517,8 +501,7 @@ void http_prepare_response(const struct request *req, struct response *res,
   }
 
   /*
-   * if the path points at a directory, make sure both the path
-   * and internal path have a trailing slash
+   *  trailing slash on dirs
    */
   if (S_ISDIR(st.st_mode)) {
     if ((tmps = path_ensure_dirslash(res->path, &redirect)) ||
@@ -533,13 +516,8 @@ void http_prepare_response(const struct request *req, struct response *res,
   if (redirect) {
     res->status = S_MOVED_PERMANENTLY;
 
-    /* encode path */
     encode(res->path, tmppath);
 
-    /*
-     * write relative redirection URI to response struct
-     * (re-including the query and fragment, if present)
-     */
     if (esnprintf(res->field[RES_LOCATION], sizeof(res->field[RES_LOCATION]),
                   "%s%s%s%s%s", tmppath, req->query[0] ? "?" : "", req->query,
                   req->fragment[0] ? "#" : "", req->fragment)) {
@@ -590,7 +568,6 @@ void http_prepare_response(const struct request *req, struct response *res,
     }
   }
 
-  /* range */
   if ((s = parse_range(req->field[REQ_RANGE], st.st_size, &(res->file.lower),
                        &(res->file.upper)))) {
     if (s == S_RANGE_NOT_SATISFIABLE) {
@@ -666,7 +643,6 @@ void http_prepare_response(const struct request *req, struct response *res,
 
 void http_prepare_error_response(const struct request *req,
                                  struct response *res, enum status s) {
-  /* used later */
   (void)req;
 
   /* empty all response fields */

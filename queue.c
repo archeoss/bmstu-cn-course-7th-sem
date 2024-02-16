@@ -232,9 +232,9 @@ queue *create_queue_event(int capacity) {
 //   return;
 // }
 
-// Add a new file descriptor to the set
+/* Add a new file descriptor to the set */
 void enqueue(queue **q, const void *data, int fd) {
-  // If we don't have room, add more space in the qfd array
+  /* If we don't have room, add more space in the qfd array */
   // pthread_mutex_lock(&(*q)->lock);
   if ((*q)->size == (*q)->capacity) {
     (*q)->capacity *= 2; // Double it

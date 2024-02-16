@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 
   /* defaults */
   size_t nthreads = 8;
-  size_t nslots = 20;
+  size_t nslots = 40;
   char *servedir = ".";
 
   ARGBEGIN {

@@ -50,9 +50,7 @@ int sock_get_ips(const char *host, const char *port) {
   if (!p) {
     /* addrinfo-list exhaustet and found no connection */
     if (errno == EACCES) {
-      die("You need to run as root or have "
-          "CAP_NET_BIND_SERVICE set to bind to "
-          "privileged ports");
+      die("You need to run as root");
     } else {
       die("bind:");
     }
@@ -127,7 +125,6 @@ int sock_get_inaddr_str(const struct sockaddr_storage *in_sa, char *str,
 
 int sock_same_addr(const struct sockaddr_storage *sa1,
                    const struct sockaddr_storage *sa2) {
-  /* return early if address-families don't match */
   if (sa1->ss_family != sa2->ss_family) {
     return 0;
   }

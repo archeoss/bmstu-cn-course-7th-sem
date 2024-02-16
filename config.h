@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define BUFFER_SIZE 4096 * 3
+#define BUFFER_SIZE 1024 * 16
 #define FIELD_MAX 200
 
 /* mime-types */
