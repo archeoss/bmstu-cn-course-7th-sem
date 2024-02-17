@@ -1,0 +1,1 @@
+Архитектура: Thread Pool + Poll
