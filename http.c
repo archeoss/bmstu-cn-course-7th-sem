@@ -60,6 +60,7 @@ enum status http_prepare_header_buf(const struct response *res,
     memset(buf, 0, sizeof(*buf));
     return S_INTERNAL_SERVER_ERROR;
   }
+  warn("got timestamp");
   if (buffer_appendf(buf,
                      "HTTP/1.1 %d %s\r\n"
                      "Date: %s\r\n"
@@ -76,11 +77,13 @@ enum status http_prepare_header_buf(const struct response *res,
       return S_INTERNAL_SERVER_ERROR;
     }
   }
+  warn("headers appended");
 
   if (buffer_appendf(buf, "\r\n")) {
     memset(buf, 0, sizeof(*buf));
     return S_INTERNAL_SERVER_ERROR;
   }
+  warn("buffer appended");
 
   return 0;
 }
@@ -88,6 +91,7 @@ enum status http_prepare_header_buf(const struct response *res,
 enum status http_send_buf(int fd, struct buffer *buf) {
   ssize_t r;
 
+  warn("buffer send begin");
   if (buf == NULL) {
     return S_INTERNAL_SERVER_ERROR;
   }
@@ -104,6 +108,8 @@ enum status http_send_buf(int fd, struct buffer *buf) {
     buf->len -= r;
   }
 
+  warn("buffer send end");
+
   return 0;
 }
 
@@ -112,6 +118,7 @@ static void decode(const char src[PATH_MAX], char dest[PATH_MAX]) {
   uint8_t n;
   const char *s;
 
+  warn("decode start");
   for (s = src, i = 0; *s; i++) {
     if (*s == '%' && isxdigit((unsigned char)s[1]) &&
         isxdigit((unsigned char)s[2])) {
@@ -123,12 +130,14 @@ static void decode(const char src[PATH_MAX], char dest[PATH_MAX]) {
     }
   }
   dest[i] = '\0';
+  warn("decode end");
 }
 
 enum status http_recv_header(int fd, struct buffer *buf, int *done) {
   enum status s;
   ssize_t r;
 
+  warn("receive headers");
   while (1) {
     if ((r = read(fd, buf->data + buf->len, sizeof(buf->data) - buf->len)) <
         0) {
@@ -158,6 +167,7 @@ enum status http_recv_header(int fd, struct buffer *buf, int *done) {
       return s;
     }
   }
+  warn("receive end");
 
   buf->len -= 2;
   *done = 1;

@@ -30,8 +30,8 @@ int main(int argc, char *argv[]) {
   int insock, status = 0;
 
   /* defaults */
-  size_t nthreads = 8;
-  size_t nslots = 40;
+  size_t nthreads = 16;
+  size_t nslots = 120;
   char *servedir = ".";
 
   ARGBEGIN {
